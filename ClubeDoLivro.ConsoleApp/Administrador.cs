@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ClubeDoLivro.ConsoleApp
@@ -36,7 +37,7 @@ namespace ClubeDoLivro.ConsoleApp
                 int opcao = int.Parse(Console.ReadLine());
                 if (opcao == 0)
                 {
-                    Console.WriteLine("Fechando o programa...");
+                    ExibirMensagemColorida("Fechando o programa...", ConsoleColor.DarkRed);
                     break;
                 }
                 else if (opcao == 1)
@@ -68,7 +69,7 @@ namespace ClubeDoLivro.ConsoleApp
                     }
                     else if (opcaoCaixas == 4)
                     {
-                        ExibirMensagemSucesso("Exclusão de caixa realizado com sucesso...");
+                        ExcluirCaixa();
                     }
                 }
                 else if (opcao == 2)
@@ -99,7 +100,7 @@ namespace ClubeDoLivro.ConsoleApp
                     }
                     else if (opcaoRevistas == 4)
                     {
-                        ExibirMensagemSucesso("Exclusão de revista realizado com sucesso...");
+                        ExcluirRevista();
                     }
                 }
                 else if (opcao == 3)
@@ -131,7 +132,7 @@ namespace ClubeDoLivro.ConsoleApp
                     }
                     else if (opcaoLocadores == 4)
                     {
-                        ExibirMensagemSucesso("Exclusão de locador realizado com sucesso...");
+                        ExcluirLocador();
                     }
                 }
                 else if (opcao == 4)
@@ -165,7 +166,7 @@ namespace ClubeDoLivro.ConsoleApp
                     }
                     else if (opcaoEmprestimos == 4)
                     {
-                        ExibirMensagemSucesso("Exclusão de emprestimo realizado com sucesso...");
+                        ExcluirEmprestimo();
                     }
                     else if (opcaoEmprestimos == 5)
                     {
@@ -175,7 +176,7 @@ namespace ClubeDoLivro.ConsoleApp
                     {
                         VisualizarEmprestimoDiario();
                     }
-                    else if(opcaoEmprestimos == 7)
+                    else if (opcaoEmprestimos == 7)
                     {
                         VisualizarEmprestimoMensal();
                     }
@@ -184,6 +185,26 @@ namespace ClubeDoLivro.ConsoleApp
         }
 
         #region CRUD Emprestimos
+
+        public void ExcluirEmprestimo()
+        {
+            Console.WriteLine("Excluindo emprestimo: ");
+            int indiceEmprestimoEdicao = ReceberItemEListarEmprestimos();
+            if (indiceEmprestimoEdicao != -1)
+            {
+                Emprestimo emprestimo = emprestimos[indiceEmprestimoEdicao];
+                emprestimo.locador = null;
+                emprestimo.revista = null;
+                emprestimo.dataEmprestimo = DateTime.MaxValue;
+                emprestimo.dataDevolucao = default;
+
+                ExibirMensagemSucesso("Exclusão de emprestimo realizada com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem emprestimos para excluir...");
+            }
+        }
 
         public void FinalizarEmprestimo()
         {
@@ -222,7 +243,7 @@ namespace ClubeDoLivro.ConsoleApp
                 Console.ForegroundColor = ConsoleColor.Green;
                 for (int i = 0; i < indiceEmprestimos; i++)
                 {
-                    if (emprestimos[i].dataEmprestimo.Month == DateTime.Now.Month && !emprestimos[i].revista.estaAlugada)
+                    if (emprestimos[i].dataEmprestimo.Month == DateTime.Now.Month && !emprestimos[i].revista.estaAlugada && emprestimos[i].dataEmprestimo != DateTime.MaxValue)
                     {
                         Console.WriteLine($"{emprestimos[i].locador.nome} alugou {emprestimos[i].revista.titulo} até {emprestimos[i].dataDevolucao.Date}, mas já foi devolvida\n");
                     }
@@ -252,7 +273,7 @@ namespace ClubeDoLivro.ConsoleApp
                 Console.WriteLine("Empréstimos realizados no dia de hoje (em aberto): \n");
                 for (int i = 0; i < indiceEmprestimos; i++)
                 {
-                    if (emprestimos[i].dataEmprestimo.Date == DateTime.Now.Date && emprestimos[i].revista.estaAlugada)
+                    if (emprestimos[i].dataEmprestimo.Date == DateTime.Now.Date && emprestimos[i].revista.estaAlugada && emprestimos[i].dataEmprestimo != DateTime.MaxValue)
                     {
                         Console.WriteLine($"{emprestimos[i].locador.nome} alugou {emprestimos[i].revista.titulo} até {emprestimos[i].dataDevolucao.Date}\n");
                     }
@@ -273,8 +294,7 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 Emprestimo emprestimo = emprestimos[indiceEmprestimoEdicao];
 
-                Console.WriteLine("Digite a data de devolução: ");
-                emprestimo.dataDevolucao = DateTime.Parse(Console.ReadLine());
+                emprestimo.dataDevolucao = ValidarInputDate("Digite a data de devolução: ");
 
                 ExibirMensagemSucesso("Edição de emprestimo realizada com sucesso...");
             }
@@ -324,7 +344,7 @@ namespace ClubeDoLivro.ConsoleApp
                 Console.ForegroundColor = ConsoleColor.Green;
                 for (int i = 0; i < indiceEmprestimos; i++)
                 {
-                    if (emprestimos[i] != null && !emprestimos[i].revista.estaAlugada)
+                    if (emprestimos[i] != null && !emprestimos[i].revista.estaAlugada && emprestimos[i].dataEmprestimo != DateTime.MaxValue)
                     {
                         Console.WriteLine($"{i}: Locador: {emprestimos[i].locador.nome}\nTítulo: {emprestimos[i].revista.titulo}\nNº Edição revista: {emprestimos[i].revista.numeroEdicao}");
                         Console.WriteLine($"Data de empréstimo: {emprestimos[i].dataEmprestimo.Date}\nData de devolução: {emprestimos[i].dataDevolucao.Date}\n");
@@ -334,7 +354,7 @@ namespace ClubeDoLivro.ConsoleApp
                 Console.ForegroundColor = ConsoleColor.Red;
                 for (int i = 0; i < indiceEmprestimos; i++)
                 {
-                    if (emprestimos[i] != null && emprestimos[i].revista.estaAlugada)
+                    if (emprestimos[i] != null && emprestimos[i].revista.estaAlugada && emprestimos[i].dataEmprestimo != DateTime.MaxValue)
                     {
                         Console.WriteLine($"{i} - Nome locador: {emprestimos[i].locador.nome}\nTítulo: {emprestimos[i].revista.titulo}\nNº Edição revista: {emprestimos[i].revista.numeroEdicao}");
                         Console.WriteLine($"Data de empréstimo: {emprestimos[i].dataEmprestimo.Date}\nData de devolução: {emprestimos[i].dataDevolucao.Date}\n");
@@ -389,7 +409,7 @@ namespace ClubeDoLivro.ConsoleApp
                 {
                     if (locadores[i] != null && locadores[i].revistaAlugada == null)
                     {
-                        Console.WriteLine($"{i}: {locadores[i].nome}\nTelefone: {locadores[i].telefone}\n");
+                        Console.WriteLine($"{i}: {locadores[i].nome}\nTelefone: {FormatarNumeroTelefone(locadores[i].telefone)}\n");
                     }
                 }
             }
@@ -430,8 +450,7 @@ namespace ClubeDoLivro.ConsoleApp
                 emprestimo.locador.revistaAlugada = revistas[indiceEscolhidoRevista];
 
                 emprestimo.dataEmprestimo = DateTime.Now.Date;
-                Console.Write("Digite a data de devolução: ");
-                emprestimo.dataDevolucao = DateTime.Parse(Console.ReadLine());
+                emprestimo.dataDevolucao = ValidarInputDate("Digite a data de devolução: ");
 
                 emprestimos[indiceEmprestimos] = emprestimo;
                 indiceEmprestimos++;
@@ -448,6 +467,26 @@ namespace ClubeDoLivro.ConsoleApp
 
         #region CRUD Locadores
 
+        public void ExcluirLocador()
+        {
+            Console.WriteLine("Excluindo locador: ");
+            int indiceLocadorEdicao = ReceberItemEListarLocadores();
+            if (indiceLocadorEdicao != -1)
+            {
+                Locador locador = locadores[indiceLocadorEdicao];
+                locador.nome = "";
+                locador.nomeResponsavel = "";
+                locador.telefone = "";
+                locador.endereco = "";
+
+                ExibirMensagemSucesso("Exclusão de locador realizado com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem locadores para excluir...");
+            }
+        }
+
         public void EditarLocador()
         {
             Console.WriteLine("Editando locador: ");
@@ -455,14 +494,10 @@ namespace ClubeDoLivro.ConsoleApp
             if (indiceLocadorEdicao != -1)
             {
                 Locador locador = locadores[indiceLocadorEdicao];
-                Console.Write("Digite o nome do locador: ");
-                locador.nome = Console.ReadLine();
-                Console.Write("Digite o nome do responsável: ");
-                locador.nomeResponsavel = Console.ReadLine();
-                Console.Write("Digite o telefone: ");
-                locador.telefone = Console.ReadLine();
-                Console.Write("Digite o endereço: ");
-                locador.endereco = Console.ReadLine();
+                locador.nome = ValidarInputString("Redigite o nome do locador: ");
+                locador.nomeResponsavel = ValidarInputString("Redigite o nome do responsável: ");
+                locador.telefone = ValidarInputString("Redigite o telefone: ");
+                locador.endereco = ValidarInputString("Redigite o endereço: ");
 
                 ExibirMensagemSucesso("Edição de locador realizado com sucesso...");
             }
@@ -490,9 +525,9 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 for (int i = 0; i < indiceLocadores; i++)
                 {
-                    if (locadores[i] != null)
+                    if (locadores[i] != null && locadores[i].nome != "")
                     {
-                        Console.WriteLine($"{i}: {locadores[i].nome}\nTelefone: {locadores[i].telefone}");
+                        Console.WriteLine($"{i}: {locadores[i].nome}\nTelefone: {FormatarNumeroTelefone(locadores[i].telefone)}");
                     }
                 }
             }
@@ -520,14 +555,11 @@ namespace ClubeDoLivro.ConsoleApp
         public void CadastrarLocador()
         {
             Locador locador = new Locador();
-            Console.Write("Digite o nome do locador: ");
-            locador.nome = Console.ReadLine();
-            Console.Write("Digite o nome do responsável: ");
-            locador.nomeResponsavel = Console.ReadLine();
-            Console.Write("Digite o telefone: ");
-            locador.telefone = Console.ReadLine();
-            Console.Write("Digite o endereço: ");
-            locador.endereco = Console.ReadLine();
+            
+            locador.nome = ValidarInputString("Digite o nome do locador: ");
+            locador.nomeResponsavel = ValidarInputString("Digite o nome do responsável: ");
+            locador.telefone = ValidarInputString("Digite o telefone: ");
+            locador.endereco = ValidarInputString("Digite o endereço: ");
             locador.revistaAlugada = null;
 
             locadores[indiceLocadores] = locador;
@@ -538,6 +570,28 @@ namespace ClubeDoLivro.ConsoleApp
 
         #region CRUD Revistas
 
+        public void ExcluirRevista()
+        {
+            Console.WriteLine("Excluindo revista: ");
+            int indiceRevistaEdicao = ReceberItemEListarRevistas();
+            if (indiceRevistaEdicao != -1)
+            {
+                Revista revista = revistas[indiceRevistaEdicao];
+                revista.caixa = default;
+                revista.titulo = "";
+                revista.anoRevista = 0;
+                revista.numeroEdicao = "";
+                revista.tipoColecao = "";
+                revista.estaAlugada = false;
+
+                ExibirMensagemSucesso("Exclusão de revista realizada com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem revistas para excluir...");
+            }
+        }
+
         public void EditarRevista()
         {
             Console.WriteLine("Editando revista: ");
@@ -547,12 +601,9 @@ namespace ClubeDoLivro.ConsoleApp
                 Revista revista = revistas[indiceRevistaEdicao];
                 int indiceCaixaRecebido = ReceberItemEListarCaixas();
                 revista.caixa = caixas[indiceCaixaRecebido];
-                Console.Write("Digite o título da revista: ");
-                revista.titulo = Console.ReadLine();
-                Console.Write("Digite o ano: ");
-                revista.anoRevista = int.Parse(Console.ReadLine());
-                Console.Write("Digite a edição: ");
-                revista.numeroEdicao = Console.ReadLine();
+                revista.titulo = ValidarInputString("Redigite o título da revista: ");
+                revista.anoRevista = ValidarInputInt("Redigite o ano: ");
+                revista.numeroEdicao = ValidarInputString("Redigite a edição: ");
                 revista.tipoColecao = caixas[indiceCaixaRecebido].etiqueta;
                 revista.estaAlugada = true;
 
@@ -582,7 +633,7 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 for (int i = 0; i < indiceRevistas; i++)
                 {
-                    if (revistas[i] != null)
+                    if (revistas[i] != null && revistas[i].titulo != "")
                     {
                         Console.WriteLine($"{i}: Título: {revistas[i].titulo}\nNº Edição: {revistas[i].numeroEdicao}ª\n");
                     }
@@ -616,12 +667,9 @@ namespace ClubeDoLivro.ConsoleApp
                 Revista revista = new Revista();
                 int indiceCaixaRecebido = ReceberItemEListarCaixas();
                 revista.caixa = caixas[indiceCaixaRecebido];
-                Console.Write("Digite o título da revista: ");
-                revista.titulo = Console.ReadLine();
-                Console.Write("Digite o ano: ");
-                revista.anoRevista = int.Parse(Console.ReadLine());
-                Console.Write("Digite a edição: ");
-                revista.numeroEdicao = Console.ReadLine();
+                revista.titulo = ValidarInputString("Digite o título da revista: ");
+                revista.anoRevista = ValidarInputInt("Digite o ano: ");
+                revista.numeroEdicao = ValidarInputString("Digite a edição: ");
                 revista.tipoColecao = caixas[indiceCaixaRecebido].etiqueta;
 
                 revistas[indiceRevistas] = revista;
@@ -639,17 +687,34 @@ namespace ClubeDoLivro.ConsoleApp
 
         #region CRUD Caixas
 
+        public void ExcluirCaixa()
+        {
+            Console.WriteLine("Excluindo caixa: ");
+            int indiceCaixaEdicao = ReceberItemEListarCaixas();
+            if (indiceCaixaEdicao != -1)
+            {
+                Caixa caixa = caixas[indiceCaixaEdicao];
+                caixa.etiqueta = "";
+                caixa.numero = "";
+                caixa.cor = default;
+
+                ExibirMensagemSucesso("Exclusão de caixa realizado com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem caixas para excluir...");
+            }
+        }
+
         public void EditarCaixas()
         {
             Console.WriteLine("Editando caixa: ");
             int indiceCaixaEdicao = ReceberItemEListarCaixas();
-            if(indiceCaixaEdicao != -1)
+            if (indiceCaixaEdicao != -1)
             {
                 Caixa caixa = caixas[indiceCaixaEdicao];
-                Console.Write("Digite a etiqueta da caixa: ");
-                caixa.etiqueta = Console.ReadLine();
-                Console.Write("Digite o número da caixa: ");
-                caixa.numero = Console.ReadLine();
+                caixa.etiqueta = ValidarInputString("Redigite a etiqueta da caixa: ");
+                caixa.numero = ValidarInputString("Redigite o número da caixa: ");
 
                 ExibirMensagemSucesso("Edição de caixa realizado com sucesso...");
             }
@@ -678,7 +743,7 @@ namespace ClubeDoLivro.ConsoleApp
                 Console.WriteLine("Exibindo caixas (etiquetas): ");
                 for (int i = 0; i < indiceCaixas; i++)
                 {
-                    if (caixas[i] != null)
+                    if (caixas[i] != null && caixas[i].etiqueta != "")
                     {
                         ExibirMensagemColorida($"{i}: {caixas[i].etiqueta}", caixas[i].cor);
                     }
@@ -688,7 +753,7 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 ExibirMensagemAviso("Sem caixas para listar...");
             }
-            
+
         }
 
         public int ReceberItemEListarCaixas()
@@ -710,10 +775,8 @@ namespace ClubeDoLivro.ConsoleApp
         {
             Caixa caixa = new Caixa();
             caixa.cor = EscolherCorAleatoria();
-            Console.Write("Digite a etiqueta da caixa: ");
-            caixa.etiqueta = Console.ReadLine();
-            Console.Write("Digite o número da caixa: ");
-            caixa.numero = Console.ReadLine();
+            caixa.etiqueta = ValidarInputString("Digite a etiqueta da caixa: ");
+            caixa.numero = ValidarInputString("Digite o número da caixa: ");
 
             caixas[indiceCaixas] = caixa;
             indiceCaixas++;
@@ -760,13 +823,107 @@ namespace ClubeDoLivro.ConsoleApp
         #endregion
 
         #region Metodos Auxiliares
-        
+
         public ConsoleColor EscolherCorAleatoria()
         {
             var corAleatoria = Enum.GetValues(typeof(ConsoleColor));
             return (ConsoleColor)corAleatoria.GetValue(random.Next(corAleatoria.Length));
         }
-        
+
+        public string FormatarNumeroTelefone(string numero)
+        {
+            string numeroSemLetras = RemoverLetras(numero);
+            var verificarRegex = Regex.Match(numeroSemLetras, @"^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$");
+            if (verificarRegex.Success)
+            {
+                return Regex.Replace(numeroSemLetras, @"^(\d{2})[ -]?(\d{5})[ -]?(\d{4})", @"($1) $2-$3");
+            }
+            else
+            {
+                return numeroSemLetras;
+            }
+        }
+
+        public string RemoverLetras(string palavra)
+        {
+            string[] charsToRemove = new string[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+            foreach (var c in charsToRemove)
+            {
+                palavra = palavra.Replace(c, string.Empty);
+            }
+            return palavra;
+        }
+
+        public string ValidarInputString(string mensagem)
+        {
+            string palavra;
+            while (true)
+            {
+                Console.Write(mensagem);
+                palavra = Console.ReadLine();
+                try
+                {
+                    if (palavra.Length > 0)
+                    {
+                        return palavra;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Digite novamente...");
+                        continue;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Input inválido, tente novamente...");
+                }
+            }
+        }
+
+        public int ValidarInputInt(string mensagem)
+        {
+            string numero;
+            while (true)
+            {
+                Console.Write(mensagem);
+                numero = Console.ReadLine();
+                try
+                {
+                    if (numero.Length > 0)
+                    {
+                        return int.Parse(numero);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Digite novamente...");
+                        continue;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Input inválido, tente novamente...");
+                }
+            }
+        }
+
+        public DateTime ValidarInputDate(string mensagem)
+        {
+            DateTime data;
+            while (true)
+            {
+                Console.Write(mensagem);
+                try
+                {
+                    data = DateTime.Parse(Console.ReadLine());
+                    return data;
+                }
+                catch
+                {
+                    Console.WriteLine("Input inválido, tente novamente...");
+                }
+            }
+        }
+
         #endregion
 
     }
