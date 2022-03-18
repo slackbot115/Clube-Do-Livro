@@ -14,6 +14,9 @@ namespace ClubeDoLivro.ConsoleApp
         public Caixa[] caixas = new Caixa[100];
         public int indiceCaixas = 0;
 
+        public Categoria[] categorias = new Categoria[100];
+        public int indiceCategorias = 0;
+
         public Revista[] revistas = new Revista[100];
         public int indiceRevistas = 0;
 
@@ -23,18 +26,22 @@ namespace ClubeDoLivro.ConsoleApp
         public Emprestimo[] emprestimos = new Emprestimo[100];
         public int indiceEmprestimos = 0;
 
+        public Reserva[] reservas = new Reserva[100];
+        public int indiceReservas = 0;
+
         public void GerenciadorOpcoesMenus()
         {
             while (true)
             {
                 Console.Clear();
                 Console.WriteLine("1 - Gerenciamento Caixas");
-                Console.WriteLine("2 - Gerenciamento Revistas");
-                Console.WriteLine("3 - Gerenciamento Locadores");
-                Console.WriteLine("4 - Gerenciamento Emprestimos");
+                Console.WriteLine("2 - Gerenciamento Categorias");
+                Console.WriteLine("3 - Gerenciamento Revistas");
+                Console.WriteLine("4 - Gerenciamento Locadores");
+                Console.WriteLine("5 - Gerenciamento Emprestimos/Reservas");
+                Console.WriteLine("6 - Gerenciamento de Multas");
                 Console.WriteLine("0 - Sair");
-                Console.Write("Digite a opção desejada: ");
-                int opcao = int.Parse(Console.ReadLine());
+                int opcao = ValidarInputInt("Digite a opção desejada: ");
                 if (opcao == 0)
                 {
                     ExibirMensagemColorida("Fechando o programa...", ConsoleColor.DarkRed);
@@ -48,8 +55,7 @@ namespace ClubeDoLivro.ConsoleApp
                     Console.WriteLine("3 - Editar Caixa");
                     Console.WriteLine("4 - Excluir Caixa");
                     Console.WriteLine("0 - Voltar");
-                    Console.Write("Digite a opção desejada: ");
-                    int opcaoCaixas = int.Parse(Console.ReadLine());
+                    int opcaoCaixas = ValidarInputInt("Digite a opção desejada: ");
                     if (opcaoCaixas == 0)
                     {
                         continue;
@@ -75,12 +81,43 @@ namespace ClubeDoLivro.ConsoleApp
                 else if (opcao == 2)
                 {
                     Console.Clear();
+                    Console.WriteLine("1 - Cadastrar Categoria");
+                    Console.WriteLine("2 - Listar Categorias");
+                    Console.WriteLine("3 - Editar Categoria");
+                    Console.WriteLine("4 - Excluir Categoria");
+                    Console.WriteLine("0 - Voltar");
+                    int opcaoCategoria = ValidarInputInt("Digite a opção desejada: ");
+                    if (opcaoCategoria == 0)
+                    {
+                        continue;
+                    }
+                    else if (opcaoCategoria == 1)
+                    {
+                        CadastrarCategoria();
+                    }
+                    else if (opcaoCategoria == 2)
+                    {
+                        ListarCategorias();
+                        ExibirMensagemSucesso("Listagem de categorias realizado com sucesso...");
+                    }
+                    else if (opcaoCategoria == 3)
+                    {
+                        EditarCategoria();
+                    }
+                    else if (opcaoCategoria == 4)
+                    {
+                        ExcluirCategoria();
+                    }
+                }
+                else if (opcao == 3)
+                {
+                    Console.Clear();
                     Console.WriteLine("1 - Cadastrar Revistas");
                     Console.WriteLine("2 - Listar Revistas");
                     Console.WriteLine("3 - Editar Revistas");
                     Console.WriteLine("4 - Excluir Revistas");
                     Console.WriteLine("0 - Voltar");
-                    int opcaoRevistas = int.Parse(Console.ReadLine());
+                    int opcaoRevistas = ValidarInputInt("Digite a opção desejada: ");
                     if (opcaoRevistas == 0)
                     {
                         continue;
@@ -103,7 +140,7 @@ namespace ClubeDoLivro.ConsoleApp
                         ExcluirRevista();
                     }
                 }
-                else if (opcao == 3)
+                else if (opcao == 4)
                 {
                     Console.Clear();
                     Console.WriteLine("1 - Cadastrar Locadores");
@@ -111,7 +148,7 @@ namespace ClubeDoLivro.ConsoleApp
                     Console.WriteLine("3 - Editar Locadores");
                     Console.WriteLine("4 - Excluir Locadores");
                     Console.WriteLine("0 - Voltar");
-                    int opcaoLocadores = int.Parse(Console.ReadLine());
+                    int opcaoLocadores = ValidarInputInt("Digite a opção desejada: ");
                     if (opcaoLocadores == 0)
                     {
                         continue;
@@ -135,18 +172,18 @@ namespace ClubeDoLivro.ConsoleApp
                         ExcluirLocador();
                     }
                 }
-                else if (opcao == 4)
+                else if (opcao == 5)
                 {
                     Console.Clear();
                     Console.WriteLine("1 - Cadastrar emprestimos");
                     Console.WriteLine("2 - Listar emprestimos");
                     Console.WriteLine("3 - Editar emprestimos");
-                    Console.WriteLine("4 - Excluir emprestimos");
-                    Console.WriteLine("5 - Finalizar empréstimo");
+                    Console.WriteLine("4 - Finalizar empréstimo");
+                    Console.WriteLine("5 - Criar reserva");
                     Console.WriteLine("6 - Visualizar empréstimos do dia");
                     Console.WriteLine("7 - Visualizar empréstimos do mês");
                     Console.WriteLine("0 - Voltar");
-                    int opcaoEmprestimos = int.Parse(Console.ReadLine());
+                    int opcaoEmprestimos = ValidarInputInt("Digite a opção desejada: ");
                     if (opcaoEmprestimos == 0)
                     {
                         continue;
@@ -166,45 +203,51 @@ namespace ClubeDoLivro.ConsoleApp
                     }
                     else if (opcaoEmprestimos == 4)
                     {
-                        ExcluirEmprestimo();
+                        FinalizarEmprestimo();
                     }
                     else if (opcaoEmprestimos == 5)
                     {
-                        FinalizarEmprestimo();
+                        CriarReserva();
                     }
                     else if (opcaoEmprestimos == 6)
                     {
                         VisualizarEmprestimoDiario();
                     }
-                    else if (opcaoEmprestimos == 7)
+                    else if(opcaoEmprestimos == 7)
                     {
                         VisualizarEmprestimoMensal();
+                    }
+                }
+                else if (opcao == 6)
+                {
+                    Console.Clear();
+                    Console.WriteLine("1 - Aplicar multa");
+                    Console.WriteLine("2 - Listar locadores com multas");
+                    Console.WriteLine("3 - Quitar multa");
+                    Console.WriteLine("0 - Voltar");
+                    int opcaoEmprestimos = ValidarInputInt("Digite a opção desejada: ");
+                    if (opcaoEmprestimos == 0)
+                    {
+                        continue;
+                    }
+                    else if (opcaoEmprestimos == 1)
+                    {
+                        AplicarMulta();
+                    }
+                    else if (opcaoEmprestimos == 2)
+                    {
+                        ListarLocadoresMultados();
+                        ExibirMensagemSucesso("Listagem finalizada...");
+                    }
+                    else if (opcaoEmprestimos == 3)
+                    {
+                        QuitarMulta();
                     }
                 }
             }
         }
 
         #region CRUD Emprestimos
-
-        public void ExcluirEmprestimo()
-        {
-            Console.WriteLine("Excluindo emprestimo: ");
-            int indiceEmprestimoEdicao = ReceberItemEListarEmprestimos();
-            if (indiceEmprestimoEdicao != -1)
-            {
-                Emprestimo emprestimo = emprestimos[indiceEmprestimoEdicao];
-                emprestimo.locador = null;
-                emprestimo.revista = null;
-                emprestimo.dataEmprestimo = DateTime.MaxValue;
-                emprestimo.dataDevolucao = default;
-
-                ExibirMensagemSucesso("Exclusão de emprestimo realizada com sucesso...");
-            }
-            else
-            {
-                ExibirMensagemAviso("Sem emprestimos para excluir...");
-            }
-        }
 
         public void FinalizarEmprestimo()
         {
@@ -374,7 +417,7 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 for (int i = 0; i < indiceRevistas; i++)
                 {
-                    if (revistas[i] != null && !revistas[i].estaAlugada)
+                    if (revistas[i] != null && !revistas[i].estaAlugada && revistas[i].titulo != "")
                     {
                         Console.WriteLine($"{i}: Título: {revistas[i].titulo}\nNº Edição: {revistas[i].numeroEdicao}ª\n");
                     }
@@ -401,14 +444,16 @@ namespace ClubeDoLivro.ConsoleApp
             }
         }
 
-        public void ListarLocadoresLivres()
+        public bool ListarLocadoresLivres()
         {
+            int contador = 0;
             if (VerificarSeExistemLocadores())
             {
                 for (int i = 0; i < indiceLocadores; i++)
                 {
-                    if (locadores[i] != null && locadores[i].revistaAlugada == null)
+                    if (locadores[i] != null && locadores[i].revistaAlugada == null && locadores[i].nome != "" && locadores[i].multa == null)
                     {
+                        contador++;
                         Console.WriteLine($"{i}: {locadores[i].nome}\nTelefone: {FormatarNumeroTelefone(locadores[i].telefone)}\n");
                     }
                 }
@@ -417,16 +462,23 @@ namespace ClubeDoLivro.ConsoleApp
             {
                 ExibirMensagemAviso("Sem locadores para listar...");
             }
+            return contador > 0;
         }
 
         public int ReceberEListarLocadoresLivres()
         {
             if (VerificarSeExistemLocadores())
             {
-                ListarLocadoresLivres();
-                Console.Write("Digite o índice do locador: ");
-                int indiceLocador = int.Parse(Console.ReadLine());
-                return indiceLocador;
+                if (ListarLocadoresLivres())
+                {
+                    Console.Write("Digite o índice do locador: ");
+                    int indiceLocador = int.Parse(Console.ReadLine());
+                    return indiceLocador;
+                }
+                else
+                {
+                    return -1;
+                }
             }
             else
             {
@@ -450,7 +502,8 @@ namespace ClubeDoLivro.ConsoleApp
                 emprestimo.locador.revistaAlugada = revistas[indiceEscolhidoRevista];
 
                 emprestimo.dataEmprestimo = DateTime.Now.Date;
-                emprestimo.dataDevolucao = ValidarInputDate("Digite a data de devolução: ");
+                emprestimo.dataDevolucao = CalcularDataDevolucaoEmprestimo(emprestimo.revista.categoria, emprestimo.dataEmprestimo);
+                Console.WriteLine($"Dia para devolução: {emprestimo.dataDevolucao}");
 
                 emprestimos[indiceEmprestimos] = emprestimo;
                 indiceEmprestimos++;
@@ -555,7 +608,7 @@ namespace ClubeDoLivro.ConsoleApp
         public void CadastrarLocador()
         {
             Locador locador = new Locador();
-            
+
             locador.nome = ValidarInputString("Digite o nome do locador: ");
             locador.nomeResponsavel = ValidarInputString("Digite o nome do responsável: ");
             locador.telefone = ValidarInputString("Digite o telefone: ");
@@ -635,7 +688,8 @@ namespace ClubeDoLivro.ConsoleApp
                 {
                     if (revistas[i] != null && revistas[i].titulo != "")
                     {
-                        Console.WriteLine($"{i}: Título: {revistas[i].titulo}\nNº Edição: {revistas[i].numeroEdicao}ª\n");
+                        Console.WriteLine($"{i}: Título: {revistas[i].titulo}\nNº Edição: {revistas[i].numeroEdicao}ª");
+                        Console.WriteLine($"Categoria: {revistas[i].categoria.nome}\n");
                     }
                 }
             }
@@ -662,15 +716,22 @@ namespace ClubeDoLivro.ConsoleApp
 
         public void CadastrarRevista()
         {
-            if (VerificarSeExistemCaixas())
+            if (VerificarSeExistemCaixas() && VerificarSeExistemCategorias())
             {
                 Revista revista = new Revista();
                 int indiceCaixaRecebido = ReceberItemEListarCaixas();
                 revista.caixa = caixas[indiceCaixaRecebido];
+
+                int indiceCategoriaRecebido = ReceberItemEListarCategorias();
+                revista.categoria = categorias[indiceCategoriaRecebido];
+
                 revista.titulo = ValidarInputString("Digite o título da revista: ");
                 revista.anoRevista = ValidarInputInt("Digite o ano: ");
                 revista.numeroEdicao = ValidarInputString("Digite a edição: ");
                 revista.tipoColecao = caixas[indiceCaixaRecebido].etiqueta;
+
+                //categorias[indiceCategoriaRecebido].revistas[categorias[indiceCategoriaRecebido].indiceRevistaCategoria] = revista;
+                //categorias[indiceCategoriaRecebido].indiceRevistaCategoria++;
 
                 revistas[indiceRevistas] = revista;
                 indiceRevistas++;
@@ -679,8 +740,108 @@ namespace ClubeDoLivro.ConsoleApp
             }
             else
             {
-                ExibirMensagemErro("Impossível criar revistas sem caixas...");
+                ExibirMensagemErro("Impossível criar revistas sem caixas ou categorias...");
             }
+        }
+
+        #endregion
+
+        #region CRUD Categorias
+
+        public void ExcluirCategoria()
+        {
+            Console.WriteLine("Excluindo categoria: ");
+            int indiceCategoriaEdicao = ReceberItemEListarCategorias();
+            if (indiceCategoriaEdicao != -1)
+            {
+                Categoria categoria = categorias[indiceCategoriaEdicao];
+                categoria.nome = "";
+                categoria.quantidadeDiasEmprestimo = 0;
+
+                ExibirMensagemSucesso("Exclusão de categoria realizado com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem categorias para excluir...");
+            }
+        }
+
+        public void EditarCategoria()
+        {
+            Console.WriteLine("Editando categoria: ");
+            int indiceCategoriaEdicao = ReceberItemEListarCategorias();
+            if (indiceCategoriaEdicao != -1)
+            {
+                Categoria categoria = categorias[indiceCategoriaEdicao];
+                categoria.nome = ValidarInputString("Redigite o nome da categoria: ");
+                categoria.quantidadeDiasEmprestimo = ValidarInputInt("Redigite a quantidade de dias de empréstimo: ");
+
+                ExibirMensagemSucesso("Edição de categoria realizado com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem categorias para editar...");
+            }
+        }
+
+        public bool VerificarSeExistemCategorias()
+        {
+            if (indiceCategorias > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void ListarCategorias()
+        {
+            if (VerificarSeExistemCategorias())
+            {
+                Console.WriteLine("Exibindo categorias (nome): ");
+                for (int i = 0; i < indiceCategorias; i++)
+                {
+                    if (categorias[i] != null && categorias[i].nome != "")
+                    {
+                        Console.WriteLine($"{i}: {categorias[i].nome}\n");
+                    }
+                }
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem categorias para listar...");
+            }
+
+        }
+
+        public int ReceberItemEListarCategorias()
+        {
+            if (VerificarSeExistemCategorias())
+            {
+                ListarCategorias();
+                Console.Write("Escolha uma categoria: ");
+                int indiceEscolhido = int.Parse(Console.ReadLine());
+                return indiceEscolhido;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public void CadastrarCategoria()
+        {
+            Categoria categoria = new Categoria();
+            categoria.nome = ValidarInputString("Digite o nome da categoria: ");
+            categoria.quantidadeDiasEmprestimo = ValidarInputInt("Digite a quantidade de dias de empréstimo: ");
+            //categoria.revistas = null;
+
+            categorias[indiceCategorias] = categoria;
+            indiceCategorias++;
+
+            ExibirMensagemSucesso("\nCadastro de categoria realizado com sucesso...");
         }
 
         #endregion
@@ -784,6 +945,118 @@ namespace ClubeDoLivro.ConsoleApp
             ExibirMensagemColorida($"Cor da caixa: {caixa.cor}", caixa.cor);
 
             ExibirMensagemSucesso("\nCadastro de caixa realizado com sucesso...");
+        }
+
+        #endregion
+
+        #region Metodos de Multa
+
+        public void ListarLocadoresMultados()
+        {
+            if (VerificarSeExistemLocadores())
+            {
+                for (int i = 0; i < indiceLocadores; i++)
+                {
+                    if (locadores[i].multa != null && locadores[i].nome != "")
+                    {
+                        ExibirMensagemColorida($"Locador: {locadores[i].nome}\nValor da multa: R$ {locadores[i].multa.valorMulta}\n", ConsoleColor.Red);
+                    }
+                }
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem locadores para listar...");
+            }
+        }
+
+        public void QuitarMulta()
+        {
+            if (VerificarSeExistemLocadores())
+            {
+                int indiceEscolhidoLocador = ReceberItemEListarLocadores();
+                Locador locadorMultado = locadores[indiceEscolhidoLocador];
+
+                if (locadorMultado.revistaAlugada != null)
+                {
+                    locadorMultado.revistaAlugada = null;
+                }
+
+                locadorMultado.multa = null;
+                ExibirMensagemSucesso("Multa quitada com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem locadores para quitar multas...");
+            }
+        }
+
+        public void AplicarMulta()
+        {
+            if (VerificarSeExistemLocadores())
+            {
+                int indiceEscolhidoLocador = ReceberEListarLocadoresLivres();
+                if(indiceEscolhidoLocador != -1)
+                {
+                    Locador locadorMultado = locadores[indiceEscolhidoLocador];
+
+                    int diasSemDevolucao = ValidarInputInt("Digite quantos dias passaram sem devolução: ");
+                    double valorMulta = CalcularMulta(diasSemDevolucao);
+                    Multa multa = new Multa();
+                    multa.valorMulta = valorMulta;
+                    multa.locadorMultado = locadorMultado;
+                    locadorMultado.multa = multa;
+
+                    ExibirMensagemSucesso("Multa aplicada com sucesso...");
+                }
+                else
+                {
+                    ExibirMensagemAviso("Sem locadores para multar...");
+                }
+            }
+            else
+            {
+                ExibirMensagemAviso("Sem locadores para multar...");
+            }
+        }
+
+        public double CalcularMulta(int diasSemDevolucao)
+        {
+            double valorMulta = diasSemDevolucao * 0.5;
+            return valorMulta;
+        }
+
+        #endregion
+
+        #region Metodos de Reserva
+
+        public void CriarReserva()
+        {
+            if (VerificarSeExistemLocadores() && VerificarSeExistemRevistas())
+            {
+                Reserva reserva = new Reserva();
+                Console.WriteLine("Escolha o locador: ");
+                int indiceEscolhidoLocador = ReceberEListarLocadoresLivres();
+                reserva.locador = locadores[indiceEscolhidoLocador];
+
+                Console.WriteLine("\nEscolha a revista que deseja: ");
+                int indiceEscolhidoRevista = ReceberEListarRevistasLivres();
+                reserva.revista = revistas[indiceEscolhidoRevista];
+                reserva.revista.estaAlugada = true;
+                reserva.locador.revistaAlugada = revistas[indiceEscolhidoRevista];
+
+                reserva.expiraEm = DateTime.Now.Date.AddDays(reserva.validade);
+
+                ExibirMensagemColorida($"Reserva termina em {reserva.expiraEm}", ConsoleColor.Yellow);
+
+                reservas[indiceReservas] = reserva;
+                indiceReservas++;
+
+                ExibirMensagemSucesso("Reserva realizada com sucesso...");
+            }
+            else
+            {
+                ExibirMensagemErro("Impossível criar reserva sem locadores e revistas...");
+            }
         }
 
         #endregion
@@ -922,6 +1195,12 @@ namespace ClubeDoLivro.ConsoleApp
                     Console.WriteLine("Input inválido, tente novamente...");
                 }
             }
+        }
+
+        public DateTime CalcularDataDevolucaoEmprestimo(Categoria categoriaRevista, DateTime dataInicialEmprestimo)
+        {
+            DateTime dataDevolucao = dataInicialEmprestimo.AddDays(categoriaRevista.quantidadeDiasEmprestimo);
+            return dataDevolucao;
         }
 
         #endregion

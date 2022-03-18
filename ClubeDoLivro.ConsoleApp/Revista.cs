@@ -14,5 +14,6 @@ namespace ClubeDoLivro.ConsoleApp
         public int anoRevista;
         public bool estaAlugada;
         public Caixa caixa;
+        public Categoria categoria;
     }
 }

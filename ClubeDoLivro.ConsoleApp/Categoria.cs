@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace ClubeDoLivro.ConsoleApp
 {
-    internal class Locador
+    internal class Categoria
     {
         public string nome;
-        public string nomeResponsavel;
-        public string telefone;
-        public string endereco;
-        public Revista revistaAlugada;
-        public Multa multa;
+        public int quantidadeDiasEmprestimo;
+        //public Revista[] revistas = new Revista[100];
+        //public int indiceRevistaCategoria = 0;
     }
 }
